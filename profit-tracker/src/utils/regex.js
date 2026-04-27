@@ -4,8 +4,28 @@ export const extractReceiptData = (rawText) => {
 
   // 2. Extract Reference Number (Look for 13 consecutive digits)
   // Pattern: Finds a string of 11 to 13 digits
-  const refMatch = cleanText.match(/\b\d{11,13}\b/);
-  const refNo = refMatch ? refMatch[0] : "Not Found";
+  //const refMatch = cleanText.match(/\b\d{11,13}\b/);
+  //const refNo = refMatch ? refMatch[0] : "Not Found";
+
+  // 1. Look for "Ref No" followed by digits and spaces
+  // [\d\s]{11,18} allows for the spaces in "8038 221..."
+  const refRegex = /(?:Ref\s?No\.?)\s?([\d\s]{11,20})/i;
+
+  const refMatch = cleanText.match(refRegex);
+
+  let refNo = "Not Found";
+
+  if (refMatch) {
+    // 2. Clean the match: remove spaces and any trailing non-digit characters
+    // We turn "8038 221 889858" into "8038221889858"
+    refNo = refMatch[1].replace(/\s/g, "").trim();
+
+    // 3. (Optional) Final check: GCash refs are usually 13 digits
+    // If it's longer (e.g., captured the date by mistake), slice it
+    if (refNo.length > 13) {
+      refNo = refNo.substring(0, 13);
+    }
+  }
 
   // 3. Extract Amount
   // Pattern: Finds digits that follow "Amount" or "Sent" or have a P/PHP symbol
