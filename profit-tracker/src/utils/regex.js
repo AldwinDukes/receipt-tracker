@@ -3,9 +3,6 @@ export const extractReceiptData = (rawText) => {
   const cleanText = rawText.replace(/\n/g, " ").replace(/\s+/g, " ");
 
   // 2. Extract Reference Number (Look for 13 consecutive digits)
-  // Pattern: Finds a string of 11 to 13 digits
-  //const refMatch = cleanText.match(/\b\d{11,13}\b/);
-  //const refNo = refMatch ? refMatch[0] : "Not Found";
 
   // 1. Look for "Ref No" followed by digits and spaces
   // [\d\s]{11,18} allows for the spaces in "8038 221..."

@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@heyputer/puter.js": "^2.2.15",
+    "@tailwindcss/vite": "^4.2.4",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
