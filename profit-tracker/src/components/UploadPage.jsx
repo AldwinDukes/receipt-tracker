@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 //libs
 import puter from "@heyputer/puter.js";
@@ -6,19 +6,23 @@ import puter from "@heyputer/puter.js";
 // utils
 import { autoCropGCashReceipt } from "../utils/autoCrop";
 import { extractReceiptData } from "../utils/regex";
+import { autoScrollToDetails } from "../utils/autoScroll";
 
 const UploadPage = () => {
   const [preview, setPreview] = useState(null);
   const [extractedText, setExtractedText] = useState("");
+  const [extracting, setExtracting] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef(null);
+  const detailsRef = useRef(null);
 
   const handleProcess = async (e) => {
     const file = e.target.files?.[0] || fileInputRef.current.files[0];
     if (!file) return;
 
     setIsProcessing(true);
-    setExtractedText("Cropping and reading receipt...");
+    autoScrollToDetails(detailsRef);
+    setExtracting("Cropping and reading receipt...");
 
     try {
       // 1. Run the Smart Crop
@@ -51,6 +55,10 @@ const UploadPage = () => {
     }
   };
 
+  useEffect(() => {
+    autoScrollToDetails(detailsRef);
+  }, [extractedText]);
+
   return (
     <>
       <header className="flex p-2">
@@ -70,7 +78,7 @@ const UploadPage = () => {
                 ref={fileInputRef}
                 onChange={handleProcess}
                 accept="image/*"
-                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-vivid-pink hover:file:bg-pink-100 cursor-pointer"
+                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-vivid-pink hover:file:bg-blue-100 cursor-pointer"
               />
             </label>
 
@@ -85,9 +93,6 @@ const UploadPage = () => {
             {/* Preview */}
             {preview && (
               <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-2">
-                <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-2 text-center">
-                  Cropped Result
-                </p>
                 <img
                   src={preview}
                   alt="Cropped"
@@ -97,18 +102,19 @@ const UploadPage = () => {
             )}
           </div>
         </div>
-      </div>
-
-      {/* Result Area */}
-      <div className="mt-4">
-        <label className="text-xs font-bold text-slate-500 uppercase">
-          Details
-        </label>
-        <div className="mt-1 p-3 rounded-lg min-h-25 text-sm whitespace-pre-wrap border border-slate-100 dark:border-slate-700">
-          {extractedText}
+        {/* Result Area */}
+        <div className="mt-4">
+          <label className="text-xs font-bold text-slate-500 uppercase">
+            {isProcessing ? extracting : "Details"}
+          </label>
+          <div className="mt-1 p-3 min-h-15 rounded-lg text-sm whitespace-pre-wrap border border-slate-100 dark:border-slate-700 font-extralight">
+            {extractedText ||
+              "Upload a GCash receipt to see the extracted details here."}
+          </div>
         </div>
       </div>
-      <div className="flex justify-center p-2">
+
+      <div ref={detailsRef} className="flex justify-center p-2">
         <button>Add Manually</button>
       </div>
     </>
