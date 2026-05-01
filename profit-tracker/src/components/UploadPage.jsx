@@ -16,6 +16,8 @@ const UploadPage = () => {
   const fileInputRef = useRef(null);
   const detailsRef = useRef(null);
 
+  const GcashNumberOwner = "+63 975 596 1986";
+
   const handleProcess = async (e) => {
     const file = e.target.files?.[0] || fileInputRef.current.files[0];
     if (!file) return;
@@ -45,7 +47,7 @@ const UploadPage = () => {
 
       const receiptData = extractReceiptData(text);
       console.log(receiptData);
-      const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}`;
+      const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\n${receiptData.phoneNo == GcashNumberOwner ? "Cash out" : "Cash In"}`;
       setExtractedText(formattedResult);
     } catch (error) {
       console.error("OCR Error:", error);

@@ -35,13 +35,18 @@ export const extractReceiptData = (rawText) => {
   // 4. Extract Recipient Name
   // Usually the first few words or words before a phone number
   // This is the hardest part and depends on your OCR's quality
-  const nameMatch = cleanText.match(/^(.*?)(?=\s\+63|\ssent)/i);
-  const name = nameMatch ? nameMatch[1].trim() : "Unknown User";
+  // const nameMatch = cleanText.match(/^(.*?)(?=\s\+63|\ssent)/i);
+  // const name = nameMatch ? nameMatch[1].trim() : "Unknown User";
+
+  // 4 Extract recipient number
+  const phoneRegex = /\+63\s?\d{3}\s?\d{3}\s?\d{4}/;
+  const phoneMatch = cleanText.match(phoneRegex);
+  const phoneNo = phoneMatch ? phoneMatch[0] : "Not Found";
 
   return {
     refNo,
     amount: parseFloat(amount),
-    name,
+    phoneNo,
     raw: cleanText, // Keeping raw for debugging
   };
 };
