@@ -105,7 +105,7 @@ const UploadPage = () => {
           </div>
         </div>
         {/* Result Area */}
-        <div className="mt-4">
+        <div className="mt-4 mb-4">
           <label className="text-xs font-bold text-slate-500 uppercase">
             {isProcessing ? extracting : "Details"}
           </label>
@@ -114,10 +114,17 @@ const UploadPage = () => {
               "Upload a GCash receipt to see the extracted details here."}
           </div>
         </div>
-      </div>
 
-      <div ref={detailsRef} className="flex justify-center p-2">
-        <button>Add Manually</button>
+        <div
+          ref={detailsRef}
+          className="flex justify-center p-4 border border-gray-300 rounded-md mb-4 bg-green-400 text-white font-medium cursor-pointer hover:bg-green-500 transition"
+        >
+          <button>Add</button>
+        </div>
+
+        <div className="flex justify-center p-2">
+          <button>Add Manually</button>
+        </div>
       </div>
     </>
   );
