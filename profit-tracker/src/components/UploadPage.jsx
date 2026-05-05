@@ -7,12 +7,15 @@ import puter from "@heyputer/puter.js";
 import { autoCropGCashReceipt } from "../utils/autoCrop";
 import { extractReceiptData } from "../utils/regex";
 import { autoScrollToDetails } from "../utils/autoScroll";
+import { calculateCharge } from "../utils/serviceCharge";
 
 const UploadPage = () => {
   const [preview, setPreview] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [extracting, setExtracting] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [charge, setCharge] = useState(0);
+  const [profit, setProfit] = useState(0);
   const fileInputRef = useRef(null);
   const detailsRef = useRef(null);
 
@@ -47,7 +50,10 @@ const UploadPage = () => {
 
       const receiptData = extractReceiptData(text);
       console.log(receiptData);
-      const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\n${receiptData.phoneNo == GcashNumberOwner ? "Cash out" : "Cash In"}`;
+
+      setCharge(calculateCharge(receiptData.amount));
+      const currentCharge = calculateCharge(receiptData.amount);
+      const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\nService Charge: ${currentCharge}\n${receiptData.phoneNo == GcashNumberOwner ? "Cash out" : "Cash In"}`;
       setExtractedText(formattedResult);
     } catch (error) {
       console.error("OCR Error:", error);
@@ -63,10 +69,11 @@ const UploadPage = () => {
 
   return (
     <>
-      <header className="flex p-2">
+      <header className="flex justify-between items-center p-4">
         <div className="border border-gray-300 rounded-full p-2">
           <img src="public/profit.png" alt="favicon" width={24} />
         </div>
+        <p>Profit: &#8369;{profit.toFixed(2)}</p>
       </header>
 
       <div className="p-2">
@@ -119,7 +126,7 @@ const UploadPage = () => {
           ref={detailsRef}
           className="flex justify-center p-4 border border-gray-300 rounded-md mb-4 bg-green-400 text-white font-medium cursor-pointer hover:bg-green-500 transition"
         >
-          <button>Add</button>
+          <button onClick={() => setProfit(profit + charge)}>Add</button>
         </div>
 
         <div className="flex justify-center p-2">
