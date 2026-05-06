@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 //libs
 import puter from "@heyputer/puter.js";
+import toast, { Toaster } from "react-hot-toast";
 
 // utils
 import { autoCropGCashReceipt } from "../utils/autoCrop";
@@ -20,6 +21,19 @@ const UploadPage = () => {
   const detailsRef = useRef(null);
 
   const GcashNumberOwner = "+63 975 596 1986";
+
+  const notValidReceiptToast = () =>
+    toast.error("Invalid receipt. Please upload a valid GCash receipt.");
+
+  const clearInputDetails = () => {
+    setProfit(profit + charge);
+    setPreview(null);
+    setExtractedText("");
+    setCharge(0);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleProcess = async (e) => {
     const file = e.target.files?.[0] || fileInputRef.current.files[0];
@@ -49,10 +63,18 @@ const UploadPage = () => {
       const text = await puter.ai.img2txt(dataUrl);
 
       const receiptData = extractReceiptData(text);
-      console.log(receiptData);
+      // console.log(receiptData);
 
-      setCharge(calculateCharge(receiptData.amount));
+      if (receiptData.refNo === "Not Found" || receiptData.amount === 0) {
+        notValidReceiptToast();
+        clearInputDetails();
+        setIsProcessing(false);
+        return;
+      }
+
       const currentCharge = calculateCharge(receiptData.amount);
+      setCharge(currentCharge);
+
       const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\nService Charge: ${currentCharge}\n${receiptData.phoneNo == GcashNumberOwner ? "Cash out" : "Cash In"}`;
       setExtractedText(formattedResult);
     } catch (error) {
@@ -69,6 +91,16 @@ const UploadPage = () => {
 
   return (
     <>
+      <div>
+        <Toaster
+          toastOptions={{
+            style: {
+              border: "1px solid red",
+              color: "red",
+            },
+          }}
+        />
+      </div>
       <header className="flex justify-between items-center p-4">
         <div className="border border-gray-300 rounded-full p-2">
           <img src="public/profit.png" alt="favicon" width={24} />
@@ -122,11 +154,13 @@ const UploadPage = () => {
           </div>
         </div>
 
-        <div
-          ref={detailsRef}
-          className="flex justify-center p-4 border border-gray-300 rounded-md mb-4 bg-green-400 text-white font-medium cursor-pointer hover:bg-green-500 transition"
-        >
-          <button onClick={() => setProfit(profit + charge)}>Add</button>
+        <div ref={detailsRef} className="flex justify-center ">
+          <button
+            className="w-full p-4 border border-gray-300 rounded-md mb-4 bg-green-400 text-white font-medium cursor-pointer hover:bg-green-500 transition"
+            onClick={clearInputDetails}
+          >
+            Add
+          </button>
         </div>
 
         <div className="flex justify-center p-2">
