@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 //libs
 import puter from "@heyputer/puter.js";
 import toast, { Toaster } from "react-hot-toast";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 
 // utils
 import { autoCropGCashReceipt } from "../utils/autoCrop";
@@ -17,6 +19,7 @@ const UploadPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [charge, setCharge] = useState(0);
   const [profit, setProfit] = useState(0);
+  const [receiptNumber, setReceiptNumber] = useState("");
   const fileInputRef = useRef(null);
   const detailsRef = useRef(null);
 
@@ -30,9 +33,9 @@ const UploadPage = () => {
     setPreview(null);
     setExtractedText("");
     setCharge(0);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    setReceiptNumber("");
+    // clear file name from input
+    fileInputRef.current.value = "";
   };
 
   const handleProcess = async (e) => {
@@ -77,6 +80,7 @@ const UploadPage = () => {
 
       const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\nService Charge: ${currentCharge}\n${receiptData.phoneNo == GcashNumberOwner ? "Cash out" : "Cash In"}`;
       setExtractedText(formattedResult);
+      setReceiptNumber(receiptData.phoneNo);
     } catch (error) {
       console.error("OCR Error:", error);
       setExtractedText("Error processing image. Please try again.");
@@ -151,6 +155,16 @@ const UploadPage = () => {
           <div className="mt-1 p-3 min-h-15 rounded-lg text-sm whitespace-pre-wrap border border-slate-100 dark:border-slate-700 font-extralight">
             {extractedText ||
               "Upload a GCash receipt to see the extracted details here."}
+            <p>
+              {receiptNumber === GcashNumberOwner ? (
+                <FormControlLabel
+                  control={<Switch defaultChecked />}
+                  label="Claimed"
+                />
+              ) : (
+                ""
+              )}
+            </p>
           </div>
         </div>
 
