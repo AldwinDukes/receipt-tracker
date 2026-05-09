@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 
+//components
+import ActionButtons from "./ActionButtons";
+
 //libs
 import puter from "@heyputer/puter.js";
 import toast, { Toaster } from "react-hot-toast";
@@ -20,22 +23,52 @@ const UploadPage = () => {
   const [charge, setCharge] = useState(0);
   const [profit, setProfit] = useState(0);
   const [receiptNumber, setReceiptNumber] = useState("");
+  const [isCurrentReceiptValid, setIsCurrentReceiptValid] = useState(false);
   const fileInputRef = useRef(null);
   const detailsRef = useRef(null);
 
-  const GcashNumberOwner = "+63 975 596 1986";
+  const GcashOwnerNumber = "+63 975 596 1986";
 
-  const notValidReceiptToast = () =>
-    toast.error("Invalid receipt. Please upload a valid GCash receipt.");
+  const notify = {
+    // Internal helper to keep styles consistent
+    _show: (type, msg, color) => {
+      toast[type](msg, {
+        style: {
+          border: `1px solid ${color}`,
+          color: color,
+        },
+      });
+    },
 
-  const clearInputDetails = () => {
-    setProfit(profit + charge);
+    error: (msg) => notify._show("error", msg, "red"),
+    success: (msg) => notify._show("success", msg, "green"),
+  };
+
+  const resetInputState = () => {
     setPreview(null);
     setExtractedText("");
     setCharge(0);
     setReceiptNumber("");
+    setIsCurrentReceiptValid(false);
     // clear file name from input
     fileInputRef.current.value = "";
+  };
+
+  const calculateProfit = () => {
+    setProfit(profit + charge);
+  };
+
+  const clearInputDetails = () => {
+    if (isCurrentReceiptValid) {
+      notify.success("Receipt added successfully!");
+      calculateProfit();
+    }
+    resetInputState();
+  };
+
+  const discardReceipt = () => {
+    resetInputState();
+    setIsCurrentReceiptValid(false);
   };
 
   const handleProcess = async (e) => {
@@ -69,18 +102,20 @@ const UploadPage = () => {
       // console.log(receiptData);
 
       if (receiptData.refNo === "Not Found" || receiptData.amount === 0) {
-        notValidReceiptToast();
+        notify.error("Invalid receipt. Please upload a valid GCash receipt.");
         clearInputDetails();
         setIsProcessing(false);
+        setIsCurrentReceiptValid(false);
         return;
       }
 
       const currentCharge = calculateCharge(receiptData.amount);
       setCharge(currentCharge);
 
-      const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\nService Charge: ${currentCharge}\n${receiptData.phoneNo == GcashNumberOwner ? "Cash out" : "Cash In"}`;
+      const formattedResult = `Reference No: ${receiptData.refNo}\nAmount: ${receiptData.amount}\nService Charge: ${currentCharge}\n${receiptData.phoneNo == GcashOwnerNumber ? "Cash out" : "Cash In"}`;
       setExtractedText(formattedResult);
       setReceiptNumber(receiptData.phoneNo);
+      setIsCurrentReceiptValid(true);
     } catch (error) {
       console.error("OCR Error:", error);
       setExtractedText("Error processing image. Please try again.");
@@ -96,14 +131,7 @@ const UploadPage = () => {
   return (
     <>
       <div>
-        <Toaster
-          toastOptions={{
-            style: {
-              border: "1px solid red",
-              color: "red",
-            },
-          }}
-        />
+        <Toaster />
       </div>
       <header className="flex justify-between items-center p-4">
         <div className="border border-gray-300 rounded-full p-2">
@@ -148,7 +176,7 @@ const UploadPage = () => {
           </div>
         </div>
         {/* Result Area */}
-        <div className="mt-4 mb-4">
+        <div ref={detailsRef} className="mt-4 mb-4">
           <label className="text-xs font-bold text-slate-500 uppercase">
             {isProcessing ? extracting : "Details"}
           </label>
@@ -156,7 +184,7 @@ const UploadPage = () => {
             {extractedText ||
               "Upload a GCash receipt to see the extracted details here."}
             <p>
-              {receiptNumber === GcashNumberOwner ? (
+              {receiptNumber === GcashOwnerNumber ? (
                 <FormControlLabel
                   control={<Switch defaultChecked />}
                   label="Claimed"
@@ -167,18 +195,18 @@ const UploadPage = () => {
             </p>
           </div>
         </div>
-
-        <div ref={detailsRef} className="flex justify-center ">
-          <button
-            className="w-full p-4 border border-gray-300 rounded-md mb-4 bg-green-400 text-white font-medium cursor-pointer hover:bg-green-500 transition"
-            onClick={clearInputDetails}
-          >
-            Add
-          </button>
-        </div>
-
-        <div className="flex justify-center p-2">
-          <button>Add Manually</button>
+        {/* Action Buttons */}
+        <div>
+          {isCurrentReceiptValid ? (
+            <ActionButtons
+              clearInputDetails={clearInputDetails}
+              discardReceipt={discardReceipt}
+            />
+          ) : (
+            <div className="flex justify-center p-2">
+              <button>Add Manually</button>
+            </div>
+          )}
         </div>
       </div>
     </>
