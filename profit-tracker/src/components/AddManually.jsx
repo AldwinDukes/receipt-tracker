@@ -3,6 +3,8 @@ import ActionButtons from "./ActionButtons";
 import { clearInputDetails } from "../utils/clearInputs";
 import { discardReceipt } from "../utils/discardReceipt";
 
+import { Link } from "react-router-dom";
+
 function AddManually() {
   return (
     <>
@@ -51,10 +53,12 @@ function AddManually() {
         />
       </div>
 
-      <ActionButtons
-        clearInputDetails={clearInputDetails}
-        discardReceipt={discardReceipt}
-      />
+      <Link to="/UploadPage">
+        <ActionButtons
+          clearInputDetails={clearInputDetails}
+          discardReceipt={discardReceipt}
+        />
+      </Link>
     </>
   );
 }

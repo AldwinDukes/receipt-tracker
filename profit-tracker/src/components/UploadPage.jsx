@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 //components
 import ActionButtons from "./ActionButtons";
@@ -203,9 +204,11 @@ const UploadPage = () => {
               discardReceipt={discardReceipt}
             />
           ) : (
-            <div className="flex justify-center p-2">
-              <button>Add Manually</button>
-            </div>
+            <Link to="/AddManually">
+              <div className="flex justify-center p-2">
+                <button>Add Manually</button>
+              </div>
+            </Link>
           )}
         </div>
       </div>

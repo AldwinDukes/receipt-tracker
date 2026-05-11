@@ -1,10 +1,13 @@
-import UploadPage from "./components/UploadPage";
-//import AddManually from "./components/AddManually";
+// import UploadPage from "./components/UploadPage";
+// import AddManually from "./components/AddManually";
+
 function App() {
   return (
     <div className="App">
-      <UploadPage />
-      {/* <AddManually /> */}
+      {/* <UploadPage />
+      <AddManually /> */}
+
+      <h1>APP dashboard</h1>
     </div>
   );
 }
