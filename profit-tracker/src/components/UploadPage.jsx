@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 //components
-import ActionButtons from "./ActionButtons";
+import DiscardBtn from "./buttons/DiscardBtn";
+import AddTransactionBtn from "./buttons/AddTransactionBtn";
 
 //libs
 import puter from "@heyputer/puter.js";
@@ -199,10 +200,14 @@ const UploadPage = () => {
         {/* Action Buttons */}
         <div>
           {isCurrentReceiptValid ? (
-            <ActionButtons
-              clearInputDetails={clearInputDetails}
-              discardReceipt={discardReceipt}
-            />
+            <div>
+              <AddTransactionBtn btnAction={() => clearInputDetails()} />
+              <DiscardBtn
+                btnAction={() => {
+                  discardReceipt();
+                }}
+              />
+            </div>
           ) : (
             <Link to="/AddManually">
               <div className="flex justify-center p-2">
